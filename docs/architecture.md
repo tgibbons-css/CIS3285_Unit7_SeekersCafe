@@ -1,4 +1,4 @@
-# Architecture decisions — Phases 1–3
+# Architecture decisions — Phases 1–4
 
 ## Boundaries and communication
 
@@ -15,8 +15,9 @@ flowchart LR
 ```
 
 This is the target flow. MenuService CRUD and OrderService checkout/persistence
-are implemented. PaymentService and WebApp still expose only identity endpoints.
-OrderService saves Pending orders; the payment call is deferred to Phase 4.
+are implemented, along with simulated PaymentService checkout. Only WebApp still
+exposes an identity endpoint. OrderService saves Pending before calling payments,
+then marks Paid on confirmed success. See [payment workflow](payment-service.md).
 The WebApp host makes four runnable processes, but there are three business
 microservices. Each project builds without project references to the others.
 Each service will have its own EF Core DbContext and SQLite file. Relationships
@@ -61,7 +62,7 @@ authentication. No gateway or proxy is needed for this lesson.
   payment for identical input and reject conflicting amount/method input. This
   does not deduplicate separate customer order submissions; explain that limit.
 
-## Planned checkout and failures
+## Checkout and failures
 
 1. Validate customer name, positive quantities, payment method and bounded input.
 2. Retrieve each requested item from MenuService over HTTP; validate availability
@@ -75,7 +76,8 @@ authentication. No gateway or proxy is needed for this lesson.
    no real card numbers or account information.
 6. If the request times out, payment may have committed even though its response
    was lost. Keep Pending and report the outcome as unknown, including the order ID.
-   Reconcile through the payment-by-order endpoint or retry using the same key;
+   Reconcile through OrderService's payment reconciliation endpoint (which reads
+   PaymentService's payment-by-order endpoint), or replay the exact payment request;
    never automatically issue a fresh payment key after a timeout.
 
 There is no atomic transaction spanning orders and payments. A crash after successful

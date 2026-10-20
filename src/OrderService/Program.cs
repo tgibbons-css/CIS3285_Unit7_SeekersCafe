@@ -31,6 +31,19 @@ builder.Services.AddHttpClient<MenuClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(timeout);
 });
 
+var paymentUrl = builder.Configuration["PaymentService:BaseUrl"];
+if (!Uri.TryCreate(paymentUrl, UriKind.Absolute, out var paymentUri)
+    || (paymentUri.Scheme != "http" && paymentUri.Scheme != "https"))
+    throw new InvalidOperationException("PaymentService:BaseUrl must be an absolute HTTP(S) URL.");
+var paymentTimeout = builder.Configuration.GetValue<int>("PaymentService:TimeoutSeconds");
+if (paymentTimeout is < 1 or > 30)
+    throw new InvalidOperationException("PaymentService:TimeoutSeconds must be between 1 and 30.");
+builder.Services.AddHttpClient<PaymentClient>(client =>
+{
+    client.BaseAddress = paymentUri;
+    client.Timeout = TimeSpan.FromSeconds(paymentTimeout);
+});
+
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpLogging(options =>
 {
@@ -53,6 +66,6 @@ await using (var scope = app.Services.CreateAsyncScope())
     await db.Database.EnsureCreatedAsync();
 }
 
-app.MapGet("/", () => Results.Ok(new { service = "OrderService", phase = 3 }));
+app.MapGet("/", () => Results.Ok(new { service = "OrderService", phase = 4 }));
 app.MapOrderEndpoints();
 app.Run();

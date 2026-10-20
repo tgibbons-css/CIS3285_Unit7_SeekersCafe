@@ -1,0 +1,42 @@
+@payments = http://localhost:5103
+@orders = http://localhost:5102
+@orderId = 1
+
+### Independent simulation (no OrderService required); illustrative standalone order ID
+# @name simulatePayment
+POST {{payments}}/api/payments
+Content-Type: application/json
+
+{
+  "orderId": 1000000,
+  "requestId": "standalone-class-demo-1",
+  "amount": 4.50,
+  "paymentMethod": "Credit Card"
+}
+
+### Replay the identical request above: 200 with the SAME payment ID
+### Changed amount/method/key for this order returns 409. No second payment is created.
+GET {{payments}}/api/payments/{{simulatePayment.response.body.$.paymentId}}
+
+### Get the payment for a real checkout order (200 or 404)
+GET {{payments}}/api/payments/order/{{orderId}}
+
+### Reconcile a saved order after an uncertain outcome; does not create a payment
+POST {{orders}}/api/orders/{{orderId}}/payment/reconcile
+
+### Decline demo: restart PaymentService with --Simulation:DeclinePayments true.
+### See docs/payment-service.md for the command. Checkout returns 402 and a saved Pending order.
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Decline Demo",
+  "paymentMethod": "Dining Dollars",
+  "items": [{ "menuItemId": 1, "quantity": 1 }]
+}
+
+### Missing/invalid inputs (400)
+POST {{payments}}/api/payments
+Content-Type: application/json
+
+{ "orderId": 1, "requestId": "invalid-demo", "amount": -1, "paymentMethod": "Cash" }

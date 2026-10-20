@@ -1,11 +1,13 @@
 namespace OrderService;
 
 // Client prices, totals, timestamps and statuses are intentionally absent.
-public sealed record CreateOrderRequest(string? CustomerName, List<OrderItemRequest?>? Items)
+public sealed record CreateOrderRequest(string? CustomerName, List<OrderItemRequest?>? Items, string? PaymentMethod)
 {
     public Dictionary<string, string[]> Validate()
     {
         var errors = new Dictionary<string, string[]>();
+        if (PaymentMethod is not ("Credit Card" or "Dining Dollars"))
+            errors["paymentMethod"] = ["Choose Credit Card or Dining Dollars (simulated payments only)."];
         if (string.IsNullOrWhiteSpace(CustomerName) || CustomerName.Trim().Length > 100)
             errors["customerName"] = ["Customer name is required and must be at most 100 characters."];
         if (Items is null || Items.Count is < 1 or > 50)

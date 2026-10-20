@@ -1,16 +1,17 @@
 @orders = http://localhost:5102
 @menu = http://localhost:5101
 
-### Start MenuService and OrderService in separate terminals.
+### Start MenuService, PaymentService and OrderService in separate terminals.
 GET {{menu}}/api/menu
 
-### Create a Pending order using IDs from the menu (201)
+### Create and pay for an order using IDs from the menu (201 with {order,payment})
 # @name createOrder
 POST {{orders}}/api/orders
 Content-Type: application/json
 
 {
   "customerName": "Classroom Customer",
+  "paymentMethod": "Credit Card",
   "items": [
     { "menuItemId": 1, "quantity": 2 },
     { "menuItemId": 5, "quantity": 1 }
@@ -18,19 +19,19 @@ Content-Type: application/json
 }
 
 ### Retrieve the order, including saved name/price snapshots (200)
-GET {{orders}}/api/orders/{{createOrder.response.body.$.orderId}}
+GET {{orders}}/api/orders/{{createOrder.response.body.$.order.orderId}}
 
 ### List orders, newest first (200)
 GET {{orders}}/api/orders
 
-### Payment is not integrated: Pending -> Paid is blocked (409)
-PUT {{orders}}/api/orders/{{createOrder.response.body.$.orderId}}/status
+### Advance a paid order to preparation (200)
+PUT {{orders}}/api/orders/{{createOrder.response.body.$.order.orderId}}/status
 Content-Type: application/json
 
-{ "status": "Paid" }
+{ "status": "Preparing" }
 
-### Cancel the Pending order (200); repeat is an idempotent no-op
-PUT {{orders}}/api/orders/{{createOrder.response.body.$.orderId}}/status
+### Paid orders cannot be cancelled without a refund flow (409)
+PUT {{orders}}/api/orders/{{createOrder.response.body.$.order.orderId}}/status
 Content-Type: application/json
 
 { "status": "Cancelled" }
@@ -41,6 +42,7 @@ Content-Type: application/json
 
 {
   "customerName": "Classroom Customer",
+  "paymentMethod": "Credit Card",
   "items": [{ "menuItemId": 1, "quantity": 0 }]
 }
 
@@ -50,6 +52,7 @@ Content-Type: application/json
 
 {
   "customerName": "Classroom Customer",
+  "paymentMethod": "Dining Dollars",
   "items": [{ "menuItemId": 2147483647, "quantity": 1 }]
 }
 
@@ -60,5 +63,6 @@ Content-Type: application/json
 
 {
   "customerName": "Dependency Failure Demo",
+  "paymentMethod": "Credit Card",
   "items": [{ "menuItemId": 1, "quantity": 1 }]
 }
