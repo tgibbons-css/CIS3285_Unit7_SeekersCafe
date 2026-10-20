@@ -60,9 +60,11 @@ internet access; a host .NET SDK is not required for the container path. See the
 
 ### Run without Docker
 
-Requires the .NET 10 SDK (initially 10.0.402; `global.json` allows newer patches
-within the same SDK feature band). The three business services use EF Core SQLite 10.0.13
-NuGet package. The first restore requires internet access to NuGet.
+Requires any stable .NET 10 SDK. `global.json` uses the 10.0.100 SDK as a minimum
+and rolls forward to the latest installed .NET 10 feature band, so students do not
+need to install the exact SDK patch used by the project author. The three business
+services use the EF Core SQLite 10.0.13 NuGet package. The first restore requires
+internet access to NuGet.
 
 From this directory:
 

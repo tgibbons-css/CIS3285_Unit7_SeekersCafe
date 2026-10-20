@@ -62,15 +62,16 @@ Each `src/<App>/Dockerfile` uses two stages:
 
 1. `mcr.microsoft.com/dotnet/sdk:10.0.402-noble` restores and publishes that project
    in Release configuration. The project file is copied before source files so
-   ordinary source edits can reuse the restore layer. `global.json` keeps the SDK
-   selection aligned with local development.
+   ordinary source edits can reuse the restore layer. The SDK image supplies a
+   .NET 10 SDK; `global.json` selects the latest installed .NET 10 feature band.
 2. `mcr.microsoft.com/dotnet/aspnet:10.0.13-noble` contains only the runtime and
    published output. `UseAppHost=false` produces a framework-dependent DLL launched
    with `dotnet`; no Windows executable or SDK is needed in the runtime image.
 
-The version tags are explicit. When updating the SDK feature band in `global.json`,
-update the Docker SDK tag too. Check the runtime image and EF Core versions during
-planned dependency updates. These images are built locally, not pushed to a registry.
+The Docker image version tags are explicit. When intentionally changing the .NET
+version used to build the containers, update the Docker SDK tag and check the runtime
+image and EF Core versions together. Local development can use any stable .NET 10 SDK
+installed on the host. These images are built locally, not pushed to a registry.
 
 All apps run as the built-in non-root `app` user (`APP_UID`, currently 1654).
 The three database images create `/data` and give it to that user. A new empty
