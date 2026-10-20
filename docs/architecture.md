@@ -1,4 +1,4 @@
-# Architecture decisions — Phases 1–4
+# Architecture decisions — Phases 1–5
 
 ## Boundaries and communication
 
@@ -15,11 +15,15 @@ flowchart LR
 ```
 
 This is the target flow. MenuService CRUD and OrderService checkout/persistence
-are implemented, along with simulated PaymentService checkout. Only WebApp still
-exposes an identity endpoint. OrderService saves Pending before calling payments,
+are implemented, along with simulated PaymentService checkout and WebApp's plain
+HTML/CSS/JavaScript interface. OrderService saves Pending before calling payments,
 then marks Paid on confirmed success. See [payment workflow](payment-service.md).
 The WebApp host makes four runnable processes, but there are three business
 microservices. Each project builds without project references to the others.
+WebApp serves static assets and a read-only `/api/config` endpoint with public
+browser-reachable MenuService and OrderService URLs. Browser JavaScript calls those
+APIs directly; WebApp does not proxy checkout, contact PaymentService or own a database.
+See [frontend behavior and failure handling](web-interface.md).
 Each service will have its own EF Core DbContext and SQLite file. Relationships
 across services are identifiers carried in JSON, never cross-database foreign keys
 or database queries. Small consumer-side DTOs make the HTTP contract explicit

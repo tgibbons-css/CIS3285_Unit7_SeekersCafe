@@ -1,6 +1,7 @@
 ### Run each project in its own terminal before sending these requests.
 ### Each should return HTTP 200 and the service name.
-### MenuService reports phase 2, OrderService and PaymentService phase 4, WebApp phase 1.
+### MenuService reports phase 2, OrderService and PaymentService phase 4, WebApp phase 5.
+### WebApp's root is now HTML; its identity endpoint moved to /health.
 
 GET http://localhost:5101/
 
@@ -11,4 +12,4 @@ GET http://localhost:5102/
 GET http://localhost:5103/
 
 ###
-GET http://localhost:5100/
+GET http://localhost:5100/health

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Seekers Café classroom ordering demonstration. Browse sample drinks and bites, place a simulated order, and follow its progress.">
+  <title>Seekers Café · A good cup, a little pause</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#menu">Skip to menu</a>
+  <header class="site-header">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true">s.</span><span>seekers <i>café</i><small>COFFEE & GOOD COMPANY</small></span></a>
+    <nav aria-label="Main navigation"><a href="#menu">Our menu</a><a href="#track">Track an order</a><a href="#staff">Staff demo</a></nav>
+    <span class="demo-badge">CLASSROOM EDITION</span>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="welcome">
+      <div><p class="eyebrow">A CAMPUS COFFEE BREAK</p><h1 id="welcome">A little pause.<br>A good cup.</h1><p class="hero-copy">Coffee for the next chapter. A bite between classes.<br>Find your favorite and make a little time for yourself.</p><a class="text-link" href="#menu">Find your next favorite <span aria-hidden="true">↘</span></a></div>
+      <div class="coffee-art" aria-hidden="true"><span class="art-note">made for<br><i>your everyday.</i></span><div class="steam steam-one"></div><div class="steam steam-two"></div><div class="saucer"></div><div class="cup"><span>s.</span></div><div class="art-stamp">COFFEE · CONNECTION · CAMPUS ·</div></div>
+    </section>
+    <div class="notice"><span aria-hidden="true">✳</span><p><strong>A small café. A classroom experiment.</strong> Sample products and simulated payments only. This is an educational demo, not an official campus ordering app.</p></div>
+    <div class="ordering-layout">
+      <section id="menu" aria-labelledby="menu-title">
+        <div class="section-heading"><div><p class="eyebrow">SOMETHING FOR YOUR BREAK</p><h2 id="menu-title">The menu</h2></div><button id="reload-menu" class="subtle" type="button">Refresh menu</button></div>
+        <label class="search-label" for="search">Find a drink or bite</label><input id="search" type="search" placeholder="Search the menu…" autocomplete="off">
+        <div id="categories" class="categories" role="group" aria-label="Filter by category"></div>
+        <p id="menu-message" class="muted" role="status">Loading the menu…</p>
+        <div id="menu-items" class="menu-grid" aria-busy="true"></div>
+      </section>
+      <aside id="cart" class="cart-panel" aria-labelledby="cart-title">
+        <div class="cart-heading"><h2 id="cart-title">Your coffee break</h2><span id="cart-count" class="count">0</span></div>
+        <p class="muted small">A few good things, picked by you.</p><div id="cart-items"></div>
+        <div class="total-row"><span>Estimated total</span><strong id="cart-total">$0.00</strong></div><p class="small muted">Final prices are confirmed when you order.</p>
+        <form id="checkout-form">
+          <label for="customer-name">Your name</label><input id="customer-name" name="customerName" maxlength="100" required placeholder="What should we call you?" autocomplete="off">
+          <fieldset><legend>Simulated payment</legend><label class="radio-option"><input type="radio" name="paymentMethod" value="Credit Card" checked> Credit Card</label><label class="radio-option"><input type="radio" name="paymentMethod" value="Dining Dollars"> Dining Dollars</label></fieldset>
+          <p class="small muted">No card or student account details needed.</p>
+          <button id="checkout-button" class="primary" type="submit" disabled>Place simulated order <span aria-hidden="true">→</span></button>
+        </form>
+        <div id="checkout-message" class="feedback" role="status" aria-live="polite" tabindex="-1" hidden></div>
+        <button id="clear-uncertainty" class="subtle" type="button" hidden>I checked my orders; start a new cart</button>
+      </aside>
+    </div>
+    <section id="track" class="tracking-section" aria-labelledby="track-title">
+      <div><p class="eyebrow">FROM OUR COUNTER TO YOU</p><h2 id="track-title">How’s your order?</h2><p class="muted">Enter your order number to see its latest progress.</p></div>
+      <form id="track-form" class="inline-form"><label for="order-id">Order number</label><div><input id="order-id" type="number" min="1" max="2147483647" step="1" required placeholder="e.g. 12"><button class="primary" type="submit">Find order</button></div></form>
+      <p id="track-message" role="status" class="feedback" hidden></p><div id="order-detail" class="order-detail" hidden></div>
+    </section>
+    <details id="staff" class="staff-section"><summary>Behind the counter <span class="small muted">· Staff demo</span></summary><div class="staff-content"><p class="muted">Local classroom staff view. These demo APIs have no sign-in. Advance paid orders one step at a time.</p><button id="reload-orders" class="subtle" type="button">Load orders</button><p id="staff-message" class="feedback" role="status" hidden></p><div id="staff-orders" class="staff-orders"></div></div></details>
+  </main>
+  <footer><span class="footer-brand">seekers <i>café</i></span><p>CIS 3285 · Advanced Software Design<br>Educational simulation · Illustrative menu · No real payments</p><a href="#menu">Back to the menu ↑</a></footer>
+  <noscript><p class="feedback">Enable JavaScript to browse the live menu and place simulated orders.</p></noscript>
+</body>
+</html>

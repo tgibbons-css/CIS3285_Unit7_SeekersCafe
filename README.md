@@ -4,19 +4,21 @@ An educational simulation for CIS 3285: Advanced Software Design at the College
 of St. Scholastica. This is not an official campus or dining services application.
 Products will be illustrative; payments will be simulated without real credentials.
 
-## Current milestone: Phase 4
+## Current milestone: Phase 5
 
 MenuService now implements validated CRUD with EF Core SQLite and seven sample
 products seeded on database creation. OrderService persists orders, retrieves menu
 data through HTTP and calculates totals on the server. PaymentService simulates
 Credit Card and Dining Dollars payments with persistent duplicate protection.
 Confirmed payments mark orders Paid; declines and uncertain outcomes retain Pending.
-Reconciliation checks a saved payment without charging again. Only WebApp remains
-a project shell. Frontend assets and Docker are deferred to later phases.
+Reconciliation checks a saved payment without charging again. WebApp now serves a
+responsive café interface for browsing, cart editing, simulated checkout, order
+tracking and a small classroom staff queue. Docker is deferred to Phase 6.
 InventoryService remains a future student assignment.
 See the [MenuService walkthrough](docs/menu-service.md) and
 [OrderService walkthrough](docs/order-service.md) and
-[Phase 4 payment demonstrations](docs/payment-service.md).
+[Phase 4 payment demonstrations](docs/payment-service.md), plus the
+[Phase 5 web interface walkthrough](docs/web-interface.md).
 
 | Project | Local URL | Responsibility | Owned database |
 | --- | --- | --- | --- |
@@ -47,6 +49,9 @@ dotnet run --project src/OrderService --launch-profile http
 dotnet run --project src/PaymentService --launch-profile http
 dotnet run --project src/WebApp --launch-profile http
 ```
+
+Open **http://localhost:5100** to use the café interface. Use this exact local
+origin: the APIs' browser CORS policy allows `http://localhost:5100`.
 
 Visit each URL above or use `requests/phase1.http`, `requests/menu.http` and
 `requests/orders.http` and `requests/payments.http` with the VS Code REST Client
@@ -106,7 +111,7 @@ WebApp will use ASP.NET Core only to serve static files; no UI framework is plan
 2. **MenuService — complete:** EF Core SQLite, initial schema and sample seed, validated CRUD, independent HTTP tests.
 3. **OrderService — complete:** order persistence, menu HTTP client, server-calculated prices and dependency failure tests.
 4. **PaymentService — complete:** simulated success/decline, unique payment request key, integration, reconciliation and timeout behavior.
-5. **Web interface:** browse, cart, checkout, confirmation and status lookup.
+5. **Web interface — complete:** browse, cart, checkout, confirmation, status lookup and classroom staff queue.
 6. **Docker:** per-project Dockerfiles, Compose DNS/configuration, separate persistent database volumes.
 7. **Classroom demonstration:** walkthrough, failures and InventoryService assignment guidance.
 
