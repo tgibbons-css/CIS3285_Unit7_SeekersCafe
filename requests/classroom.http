@@ -1,0 +1,139 @@
+@menu = http://localhost:5101
+@orders = http://localhost:5102
+@payments = http://localhost:5103
+
+### Run individual requests in order, not the entire file at once.
+### Every checkout POST creates a NEW order. Repeating the exact payment replay is safe.
+### Normal simulation: SIMULATE_DECLINE=false, PAYMENT_DELAY_MS=0; see docs/classroom-demo.md.
+GET {{menu}}/api/menu
+
+### 1. Create a dedicated sample product; avoids editing existing café products (201).
+# @name lectureItem
+POST {{menu}}/api/menu
+Content-Type: application/json
+
+{
+  "name": "Classroom Special",
+  "description": "An illustrative product for the architecture demonstration.",
+  "category": "Other Drinks",
+  "price": 3.25,
+  "isAvailable": true
+}
+
+### 2. Server controls price/status/name: total must be 6.50 and status Paid (201).
+### Extra unitPrice, itemName, totalAmount and status are ignored.
+# @name lectureOrder
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Classroom Demo",
+  "paymentMethod": "Dining Dollars",
+  "items": [{ "menuItemId": {{lectureItem.response.body.$.menuItemId}}, "quantity": 2, "unitPrice": 0.01, "itemName": "Forged name" }],
+  "totalAmount": 0.02,
+  "status": "Completed"
+}
+
+### 3. Retrieve the order without creating another (200).
+GET {{orders}}/api/orders/{{lectureOrder.response.body.$.order.orderId}}
+
+### 4. Retrieve the authoritative payment record (200).
+# @name lecturePayment
+GET {{payments}}/api/payments/order/{{lectureOrder.response.body.$.order.orderId}}
+
+### 5. Replay EXACT payment inputs: 200, same payment ID, no second record.
+POST {{payments}}/api/payments
+Content-Type: application/json
+
+{
+  "orderId": {{lecturePayment.response.body.$.orderId}},
+  "requestId": "{{lecturePayment.response.body.$.requestId}}",
+  "amount": {{lecturePayment.response.body.$.amount}},
+  "paymentMethod": "{{lecturePayment.response.body.$.paymentMethod}}"
+}
+
+### 6. Conflicting amount with the same key/order: 409, no new payment.
+POST {{payments}}/api/payments
+Content-Type: application/json
+
+{
+  "orderId": {{lecturePayment.response.body.$.orderId}},
+  "requestId": "{{lecturePayment.response.body.$.requestId}}",
+  "amount": 0.01,
+  "paymentMethod": "{{lecturePayment.response.body.$.paymentMethod}}"
+}
+
+### 7. Change the dedicated menu product (200).
+PUT {{menu}}/api/menu/{{lectureItem.response.body.$.menuItemId}}
+Content-Type: application/json
+
+{
+  "name": "Updated Classroom Special",
+  "description": "The menu has changed; existing order history should not.",
+  "category": "Other Drinks",
+  "price": 4.00,
+  "isAvailable": true
+}
+
+### 8. History still says Classroom Special, unitPrice 3.25, totalAmount 6.50 (200).
+GET {{orders}}/api/orders/{{lectureOrder.response.body.$.order.orderId}}
+
+### 9. Invalid input: 400, no new order or payment.
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Invalid Quantity Demo",
+  "paymentMethod": "Credit Card",
+  "items": [{ "menuItemId": {{lectureItem.response.body.$.menuItemId}}, "quantity": 0 }]
+}
+
+### 10. ONLY after docker compose stop menu: 503 with NO saved order ID.
+### Start menu again before continuing. Repeating after recovery creates a new order.
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Menu Outage Demo",
+  "paymentMethod": "Credit Card",
+  "items": [{ "menuItemId": {{lectureItem.response.body.$.menuItemId}}, "quantity": 1 }]
+}
+
+### 11. ONLY after enabling the decline mode: 402 with a saved Pending order.
+# @name declinedOrder
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Decline Demo",
+  "paymentMethod": "Credit Card",
+  "items": [{ "menuItemId": {{lectureItem.response.body.$.menuItemId}}, "quantity": 1 }]
+}
+
+### 12. Pending cannot be marked Paid by staff (409).
+PUT {{orders}}/api/orders/{{declinedOrder.response.body.$.orderId}}/status
+Content-Type: application/json
+
+{ "status": "Paid" }
+
+### 13. ONLY with decline false and post-commit delay 7000 ms: 503, payment Unknown.
+### Keep its saved orderId. Do not POST checkout again to check progress.
+# @name lateOrder
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Late Response Demo",
+  "paymentMethod": "Dining Dollars",
+  "items": [{ "menuItemId": {{lectureItem.response.body.$.menuItemId}}, "quantity": 1 }]
+}
+
+### 14. Payment is Succeeded even though checkout timed out (200).
+GET {{payments}}/api/payments/order/{{lateOrder.response.body.$.orderId}}
+
+### 15. Reconciliation marks Paid using that SAME payment record (200).
+POST {{orders}}/api/orders/{{lateOrder.response.body.$.orderId}}/payment/reconcile
+
+### 16. Optional cleanup: remove only the product created in step 1 (204).
+### Its saved order snapshots and payment history remain intact.
+DELETE {{menu}}/api/menu/{{lectureItem.response.body.$.menuItemId}}
