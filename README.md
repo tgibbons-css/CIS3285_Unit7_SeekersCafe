@@ -4,13 +4,16 @@ An educational simulation for CIS 3285: Advanced Software Design at the College
 of St. Scholastica. This is not an official campus or dining services application.
 Products will be illustrative; payments will be simulated without real credentials.
 
-## Current milestone: Phase 2
+## Current milestone: Phase 3
 
 MenuService now implements validated CRUD with EF Core SQLite and seven sample
-products seeded on database creation. OrderService, PaymentService and WebApp remain
-independent project shells exposing only `GET /`. Frontend assets and Docker are
-deferred to later phases. InventoryService remains a future student assignment.
-See the [MenuService walkthrough and API contract](docs/menu-service.md).
+products seeded on database creation. OrderService persists orders, retrieves menu
+data through HTTP, calculates totals on the server and supports cancellation.
+Orders remain Pending until payment integration in Phase 4. PaymentService and
+WebApp remain independent shells exposing only `GET /`. Frontend assets and Docker
+are deferred to later phases. InventoryService remains a future student assignment.
+See the [MenuService walkthrough](docs/menu-service.md) and
+[OrderService walkthrough and failure demonstrations](docs/order-service.md).
 
 | Project | Local URL | Responsibility when implemented | Owned database |
 | --- | --- | --- | --- |
@@ -22,7 +25,7 @@ See the [MenuService walkthrough and API contract](docs/menu-service.md).
 ## Build and run
 
 Requires the .NET 10 SDK (initially 10.0.402; `global.json` allows newer patches
-within the same SDK feature band). MenuService uses the EF Core SQLite 10.0.13
+within the same SDK feature band). MenuService and OrderService use EF Core SQLite 10.0.13
 NuGet package. The first restore requires internet access to NuGet.
 
 From this directory:
@@ -42,7 +45,8 @@ dotnet run --project src/PaymentService --launch-profile http
 dotnet run --project src/WebApp --launch-profile http
 ```
 
-Visit each URL above or use `requests/phase1.http` and `requests/menu.http` with the VS Code REST Client
+Visit each URL above or use `requests/phase1.http`, `requests/menu.http` and
+`requests/orders.http` with the VS Code REST Client
 extension. A PowerShell alternative is:
 
 ```powershell
@@ -97,7 +101,7 @@ WebApp will use ASP.NET Core only to serve static files; no UI framework is plan
 
 1. **Solution setup — complete:** project shells, fixed ports, architecture, HTTP smoke requests.
 2. **MenuService — complete:** EF Core SQLite, initial schema and sample seed, validated CRUD, independent HTTP tests.
-3. **OrderService:** order persistence, menu HTTP client, server-calculated prices, dependency failure tests. Orders remain Pending until Phase 4.
+3. **OrderService — complete:** order persistence, menu HTTP client, server-calculated prices, dependency failure tests. Orders remain Pending until Phase 4.
 4. **PaymentService:** simulated success/decline, unique payment request key, integration and timeout behavior.
 5. **Web interface:** browse, cart, checkout, confirmation and status lookup.
 6. **Docker:** per-project Dockerfiles, Compose DNS/configuration, separate persistent database volumes.

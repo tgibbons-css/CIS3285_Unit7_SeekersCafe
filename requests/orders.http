@@ -1,0 +1,64 @@
+@orders = http://localhost:5102
+@menu = http://localhost:5101
+
+### Start MenuService and OrderService in separate terminals.
+GET {{menu}}/api/menu
+
+### Create a Pending order using IDs from the menu (201)
+# @name createOrder
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Classroom Customer",
+  "items": [
+    { "menuItemId": 1, "quantity": 2 },
+    { "menuItemId": 5, "quantity": 1 }
+  ]
+}
+
+### Retrieve the order, including saved name/price snapshots (200)
+GET {{orders}}/api/orders/{{createOrder.response.body.$.orderId}}
+
+### List orders, newest first (200)
+GET {{orders}}/api/orders
+
+### Payment is not integrated: Pending -> Paid is blocked (409)
+PUT {{orders}}/api/orders/{{createOrder.response.body.$.orderId}}/status
+Content-Type: application/json
+
+{ "status": "Paid" }
+
+### Cancel the Pending order (200); repeat is an idempotent no-op
+PUT {{orders}}/api/orders/{{createOrder.response.body.$.orderId}}/status
+Content-Type: application/json
+
+{ "status": "Cancelled" }
+
+### Invalid quantity (400, no order created)
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Classroom Customer",
+  "items": [{ "menuItemId": 1, "quantity": 0 }]
+}
+
+### Missing product (400, no order created)
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Classroom Customer",
+  "items": [{ "menuItemId": 2147483647, "quantity": 1 }]
+}
+
+### Stop MenuService, then send this: 503, no order created.
+### Restart MenuService and resend: 201. Existing orders remain readable during outage.
+POST {{orders}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Dependency Failure Demo",
+  "items": [{ "menuItemId": 1, "quantity": 1 }]
+}

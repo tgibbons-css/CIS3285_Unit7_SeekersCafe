@@ -1,4 +1,4 @@
-# Architecture decisions — Phases 1–2
+# Architecture decisions — Phases 1–3
 
 ## Boundaries and communication
 
@@ -14,8 +14,9 @@ flowchart LR
     Payment --> PaymentDB[(payments.db)]
 ```
 
-This is the target flow; Phase 2 implements MenuService CRUD and its database.
-The other three applications still expose only identity endpoints.
+This is the target flow. MenuService CRUD and OrderService checkout/persistence
+are implemented. PaymentService and WebApp still expose only identity endpoints.
+OrderService saves Pending orders; the payment call is deferred to Phase 4.
 The WebApp host makes four runnable processes, but there are three business
 microservices. Each project builds without project references to the others.
 Each service will have its own EF Core DbContext and SQLite file. Relationships
@@ -27,8 +28,8 @@ Use `IHttpClientFactory` clients in OrderService, with base URLs read from
 configuration and finite timeouts. Local URLs will be localhost ports; Compose
 will override them with service DNS names and container ports. Browser URLs must
 remain host-accessible: Docker service names are not resolvable by the browser.
-MenuService allows only `http://localhost:5100` in CORS; OrderService will use the
-same policy when implemented. CORS is unnecessary for server-to-server calls and is not
+MenuService and OrderService allow only `http://localhost:5100` in CORS.
+CORS is unnecessary for server-to-server calls and is not
 authentication. No gateway or proxy is needed for this lesson.
 
 ## Recommended simplifications and corrections
