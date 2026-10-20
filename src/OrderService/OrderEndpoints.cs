@@ -5,6 +5,9 @@ namespace OrderService;
 /// <summary>
 /// Maps the HTTP endpoints for retrieving orders, validating checkout, reconciling payments,
 /// and enforcing allowed order status transitions.
+/// EF Core is the ORM (object-relational mapper) used for this service's SQLite data. It turns
+/// LINQ queries into SQL, tracks loaded entities, and saves their changes through OrderDbContext.
+/// Orders are created, read, and have status updated here; there is intentionally no delete route.
 /// </summary>
 public static class OrderEndpoints
 {
@@ -12,11 +15,14 @@ public static class OrderEndpoints
     {
         var orders = app.MapGroup("/api/orders");
         orders.MapGet("", async (OrderDbContext db, CancellationToken ct) =>
+            // READ: Include loads each order's related line items; no-tracking is appropriate
+            // because this list is returned to the caller and is not edited in this request.
             Results.Ok(await db.Orders.AsNoTracking().Include(x => x.OrderItems)
                 .OrderByDescending(x => x.OrderDate).ThenByDescending(x => x.OrderId).ToListAsync(ct)));
 
         orders.MapGet("/{id:int}", async (int id, OrderDbContext db, CancellationToken ct) =>
         {
+            // READ a single order and its lines. A missing database row becomes HTTP 404.
             var order = await db.Orders.AsNoTracking().Include(x => x.OrderItems)
                 .SingleOrDefaultAsync(x => x.OrderId == id, ct);
             return order is null ? Results.NotFound() : Results.Ok(order);
@@ -27,9 +33,11 @@ public static class OrderEndpoints
         // Confirmed success marks the order Paid; an uncertain outcome requires reconciliation.
         orders.MapPost("", async (CreateOrderRequest request, OrderDbContext db, MenuClient menu, PaymentClient payments, CancellationToken ct) =>
         {
+            // Validate the request before making network calls or adding database records.
             var errors = request.Validate();
             if (errors.Count > 0) return Results.ValidationProblem(errors);
 
+            // Menu data belongs to MenuService, so fetch it over HTTP rather than querying its database.
             Dictionary<int, MenuProduct?> products;
             try
             {
@@ -64,6 +72,8 @@ public static class OrderEndpoints
             if (errors.Count > 0) return Results.ValidationProblem(errors);
 
             // Future InventoryService validation belongs before saving this Pending order.
+            // CREATE: adding the order also includes its child line-item entities. One save writes
+            // the order and lines together, so payment processing starts only after the order exists.
             db.Orders.Add(order);
             await db.SaveChangesAsync(ct); // Order and its lines commit in one local transaction.
             app.Logger.LogInformation("Created order {OrderId} with {ItemCount} lines and total {TotalAmount}; status {Status}",
@@ -91,6 +101,8 @@ public static class OrderEndpoints
         // and marks a Pending order Paid when success is confirmed, without initiating another payment.
         orders.MapPost("/{id:int}/payment/reconcile", async (int id, OrderDbContext db, PaymentClient payments, CancellationToken ct) =>
         {
+            // This read is intentionally no-tracking: the workflow applies a confirmed result
+            // through its own update operation rather than modifying this queried instance.
             var order = await db.Orders.AsNoTracking().Include(x => x.OrderItems).SingleOrDefaultAsync(x => x.OrderId == id, ct);
             if (order is null) return Results.NotFound();
             PaymentRecord? payment;
@@ -108,11 +120,13 @@ public static class OrderEndpoints
 
         orders.MapPut("/{id:int}/status", async (int id, UpdateStatusRequest request, OrderDbContext db, PaymentClient payments, CancellationToken ct) =>
         {
+            // Validate the requested status before querying or attempting a database update.
             // Enum.TryParse alone accepts numeric strings, so require an explicit status name.
             if (request.Status is null || !Enum.GetNames<OrderStatus>().Contains(request.Status))
                 return Results.ValidationProblem(new Dictionary<string, string[]>
                 { ["status"] = ["Use Pending, Paid, Preparing, Ready, Completed, or Cancelled (case sensitive)."] });
             var status = Enum.Parse<OrderStatus>(request.Status);
+            // READ current state without tracking; the conditional update below applies the change.
             var order = await db.Orders.AsNoTracking().Include(x => x.OrderItems)
                 .SingleOrDefaultAsync(x => x.OrderId == id, ct);
             if (order is null) return Results.NotFound();

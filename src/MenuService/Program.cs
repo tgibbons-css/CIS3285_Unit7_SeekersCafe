@@ -19,17 +19,21 @@ var connection = new SqliteConnectionStringBuilder(
 connection.DataSource = Path.GetFullPath(connection.DataSource, builder.Environment.ContentRootPath);
 builder.Services.AddDbContext<MenuDbContext>(options => options.UseSqlite(connection.ToString()));
 builder.Services.AddProblemDetails();
+// Log request metadata useful for tracing a call without logging request or response bodies.
 builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath
         | HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.Duration;
     options.CombineLogs = true;
 });
+// The browser frontend may call this API; other origins are not permitted by this policy.
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins(builder.Configuration["Frontend:Origin"] ?? "http://localhost:5100")
         .AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
+// These middleware components run before the mapped routes: log requests, convert
+// unhandled exceptions to problem responses, provide status-code responses, then apply CORS.
 app.UseHttpLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
@@ -48,6 +52,8 @@ await using (var scope = app.Services.CreateAsyncScope())
     }
 }
 
+// A simple health/info response makes it easy to confirm which service is running.
 app.MapGet("/", () => Results.Ok(new { service = "MenuService", phase = 2 }));
+// Keep the menu API route definitions in the endpoint-mapping extension.
 app.MapMenuEndpoints();
 app.Run();
