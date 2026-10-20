@@ -52,7 +52,8 @@ builder.Services.AddHttpLogging(options =>
     options.CombineLogs = true;
 });
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.WithOrigins("http://localhost:5100").AllowAnyHeader().AllowAnyMethod()));
+    policy.WithOrigins(builder.Configuration["Frontend:Origin"] ?? "http://localhost:5100")
+        .AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
 app.UseHttpLogging();

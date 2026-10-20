@@ -1,0 +1,22 @@
+# Keep local databases, tool caches, Git state and host build output out of images.
+.git
+.local
+.vs
+.vscode
+.codex
+.agents
+.aws
+**/bin
+**/obj
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.db-journal
+**/*.user
+**/*.suo
+**/node_modules
+docs
+requests
+scripts
+.env
+.env.*

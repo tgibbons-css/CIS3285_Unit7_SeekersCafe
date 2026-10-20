@@ -1,0 +1,60 @@
+# Published ports are local to this computer. Containers use port 8080 internally.
+services:
+  menu:
+    build:
+      context: .
+      dockerfile: src/MenuService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      Frontend__Origin: http://localhost:${WEB_PORT:-5100}
+    ports:
+      - "127.0.0.1:${MENU_PORT:-5101}:8080"
+    volumes:
+      - menu-data:/data
+
+  order:
+    build:
+      context: .
+      dockerfile: src/OrderService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      Frontend__Origin: http://localhost:${WEB_PORT:-5100}
+    ports:
+      - "127.0.0.1:${ORDER_PORT:-5102}:8080"
+    volumes:
+      - order-data:/data
+    # Creation order only. HTTP failures are still handled by OrderService at runtime.
+    depends_on:
+      - menu
+      - payment
+
+  payment:
+    build:
+      context: .
+      dockerfile: src/PaymentService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      Simulation__DeclinePayments: "${SIMULATE_DECLINE:-false}"
+      Simulation__ResponseDelayMilliseconds: "${PAYMENT_DELAY_MS:-0}"
+    ports:
+      - "127.0.0.1:${PAYMENT_PORT:-5103}:8080"
+    volumes:
+      - payment-data:/data
+
+  web:
+    build:
+      context: .
+      dockerfile: src/WebApp/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      # These URLs are read by the browser, which cannot resolve Compose service names.
+      Services__MenuBaseUrl: http://localhost:${MENU_PORT:-5101}
+      Services__OrderBaseUrl: http://localhost:${ORDER_PORT:-5102}
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5100}:8080"
+
+# Compose scopes these names to the project. No service mounts another's volume.
+volumes:
+  menu-data:
+  order-data:
+  payment-data:
