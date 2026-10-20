@@ -90,7 +90,8 @@ without bodies or credentials. Using only the console provider avoids requiring
 Windows Event Log write permissions and works the same way in future containers.
 CRUD logs include the menu item ID. Expected validation and missing-item cases use
 400/404; unexpected server errors use the exception handler with Problem Details.
-Local browser CORS allows only `http://localhost:5100`. CORS is not authentication;
+Local browser CORS defaults to only `http://localhost:5100`. The `Frontend:Origin`
+setting selects a single alternate origin for Docker port overrides. CORS is not authentication;
 these mutation endpoints are intended for a local classroom demo.
 
 ## Database lifecycle and configuration

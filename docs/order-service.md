@@ -141,7 +141,8 @@ and never initiates a payment. `EnsureCreatedAsync` still does not upgrade schem
 introduce migrations deliberately before future model changes need to retain data.
 Keep order and payment databases together when retaining or resetting the demo:
 PaymentService enforces one payment per numeric order ID and will reject collisions
-if only the order database is reset. Docker storage/configuration comes in Phase 6.
+if only the order database is reset. See the [Phase 6 Docker walkthrough](docker.md)
+for container networking, storage and configuration.
 
 ## Tests and intentional limits
 

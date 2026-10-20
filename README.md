@@ -4,7 +4,7 @@ An educational simulation for CIS 3285: Advanced Software Design at the College
 of St. Scholastica. This is not an official campus or dining services application.
 Products will be illustrative; payments will be simulated without real credentials.
 
-## Current milestone: Phase 5
+## Current milestone: Phase 6
 
 MenuService now implements validated CRUD with EF Core SQLite and seven sample
 products seeded on database creation. OrderService persists orders, retrieves menu
@@ -13,12 +13,14 @@ Credit Card and Dining Dollars payments with persistent duplicate protection.
 Confirmed payments mark orders Paid; declines and uncertain outcomes retain Pending.
 Reconciliation checks a saved payment without charging again. WebApp now serves a
 responsive café interface for browsing, cart editing, simulated checkout, order
-tracking and a small classroom staff queue. Docker is deferred to Phase 6.
+tracking and a small classroom staff queue. Each app now has a Docker image;
+Compose coordinates networking and three separate persistent SQLite volumes.
 InventoryService remains a future student assignment.
 See the [MenuService walkthrough](docs/menu-service.md) and
 [OrderService walkthrough](docs/order-service.md) and
 [Phase 4 payment demonstrations](docs/payment-service.md), plus the
-[Phase 5 web interface walkthrough](docs/web-interface.md).
+[Phase 5 web interface walkthrough](docs/web-interface.md) and
+[Phase 6 Docker walkthrough](docs/docker.md).
 
 | Project | Local URL | Responsibility | Owned database |
 | --- | --- | --- | --- |
@@ -28,6 +30,21 @@ See the [MenuService walkthrough](docs/menu-service.md) and
 | WebApp | http://localhost:5100 | Serve plain HTML, CSS, and JavaScript | None |
 
 ## Build and run
+
+For the container version, start Docker Desktop in Linux-container mode, then run:
+
+```powershell
+docker compose up --build -d
+docker compose ps
+```
+
+Open **http://localhost:5100** once the APIs are listening. Stop any locally running
+copies first so ports 5100–5103 are free. `docker compose down` stops/removes the
+containers and network while retaining the databases. The first image build needs
+internet access; a host .NET SDK is not required for the container path. See the
+[Docker walkthrough](docs/docker.md) for persistence, per-service commands and tests.
+
+### Run without Docker
 
 Requires the .NET 10 SDK (initially 10.0.402; `global.json` allows newer patches
 within the same SDK feature band). The three business services use EF Core SQLite 10.0.13
@@ -112,7 +129,7 @@ WebApp will use ASP.NET Core only to serve static files; no UI framework is plan
 3. **OrderService — complete:** order persistence, menu HTTP client, server-calculated prices and dependency failure tests.
 4. **PaymentService — complete:** simulated success/decline, unique payment request key, integration, reconciliation and timeout behavior.
 5. **Web interface — complete:** browse, cart, checkout, confirmation, status lookup and classroom staff queue.
-6. **Docker:** per-project Dockerfiles, Compose DNS/configuration, separate persistent database volumes.
+6. **Docker — complete:** per-project Dockerfiles, Compose DNS/configuration, separate persistent database volumes and container integration checks.
 7. **Classroom demonstration:** walkthrough, failures and InventoryService assignment guidance.
 
 Proceed only when the instructor requests the next phase.

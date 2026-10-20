@@ -8,3 +8,6 @@
 **/*.db-shm
 **/*.db-wal
 **/*.db-journal
+.env
+.env.*
+!.env.example

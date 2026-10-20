@@ -1,4 +1,4 @@
-# Architecture decisions — Phases 1–5
+# Architecture decisions — Phases 1–6
 
 ## Boundaries and communication
 
@@ -24,6 +24,10 @@ WebApp serves static assets and a read-only `/api/config` endpoint with public
 browser-reachable MenuService and OrderService URLs. Browser JavaScript calls those
 APIs directly; WebApp does not proxy checkout, contact PaymentService or own a database.
 See [frontend behavior and failure handling](web-interface.md).
+Each app now has its own multi-stage Dockerfile. Compose runs four non-root
+processes on one project network; the business services exclusively mount their
+own named SQLite volumes. Docker environment settings replace local paths and
+service URLs. See [container networking and persistence](docker.md).
 Each service will have its own EF Core DbContext and SQLite file. Relationships
 across services are identifiers carried in JSON, never cross-database foreign keys
 or database queries. Small consumer-side DTOs make the HTTP contract explicit

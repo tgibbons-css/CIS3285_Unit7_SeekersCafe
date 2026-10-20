@@ -161,5 +161,6 @@ no horizontal page overflow. A screenshot is saved in `docs/images/web-interface
 Order updates are manually refreshed. Staff lists are unpaged and available to
 anyone who can reach the local demo. This page is not an official campus system.
 It does not authorize real payments, reserve stock, retry declined payments,
-recover every ambiguous submission, or implement InventoryService. Docker and
-the final classroom demonstration material remain Phases 6 and 7.
+recover every ambiguous submission, or implement InventoryService. Containers are
+now available through the [Phase 6 Docker setup](docker.md). The final classroom
+demonstration material remains Phase 7.
