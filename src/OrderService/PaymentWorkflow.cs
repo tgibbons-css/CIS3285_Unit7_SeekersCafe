@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace OrderService;
 
+/// <summary>
+/// Applies confirmed payment success to pending orders without overwriting later workflow states
+/// and builds responses that direct clients to reconcile uncertain payment outcomes.
+/// </summary>
 public static class PaymentWorkflow
 {
     public static async Task ApplyConfirmedAsync(Order order, PaymentRecord payment, OrderDbContext db, CancellationToken ct)

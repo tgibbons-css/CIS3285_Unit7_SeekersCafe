@@ -1,7 +1,9 @@
 // Pure functions keep cart arithmetic and the checkout contract easy to inspect/test.
 export const toCents = price => Math.round(price * 100);
+// Sum integer cents for the displayed estimate; OrderService calculates the authoritative total.
 export const cartTotal = cart => cart.reduce((sum, item) => sum + toCents(item.price) * item.quantity, 0);
 
+// Check the response shape before rendering it as an order in the UI.
 export function isOrder(value) {
   return value && Number.isInteger(value.orderId) && value.orderId > 0
     && typeof value.customerName === 'string' && typeof value.orderDate === 'string'
@@ -12,6 +14,7 @@ export function isOrder(value) {
       && Number.isFinite(item.unitPrice) && item.unitPrice >= 0);
 }
 
+// Validate user selections for immediate feedback; the server independently validates every request.
 export function buildOrderRequest(name, method, cart) {
   if (!name.trim() || name.trim().length > 100) throw new Error('Enter a name of up to 100 characters.');
   if (!['Credit Card', 'Dining Dollars'].includes(method)) throw new Error('Choose a simulated payment method.');
@@ -28,6 +31,8 @@ export function buildOrderRequest(name, method, cart) {
     items: cart.map(item => ({ menuItemId: item.menuItemId, quantity: item.quantity })) };
 }
 
+// Distinguish a saved order from a definite rejection or an uncertain outcome.
+// A timeout or unexpected response cannot prove that the server did not save an order.
 export function classifyCheckout(status, data) {
   const orderId = data?.order?.orderId ?? data?.orderId;
   if (Number.isInteger(orderId) && orderId > 0) {

@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace OrderService;
 
+/// <summary>
+/// Provides Entity Framework access to OrderService's SQLite database and configures order relationships,
+/// value conversions, and data constraints.
+/// </summary>
 public sealed class OrderDbContext(DbContextOptions<OrderDbContext> options) : DbContext(options)
 {
     public DbSet<Order> Orders => Set<Order>();

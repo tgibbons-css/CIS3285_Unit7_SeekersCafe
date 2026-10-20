@@ -4,7 +4,11 @@ An educational simulation for CIS 3285: Advanced Software Design at the College
 of St. Scholastica. This is not an official campus or dining services application.
 Products will be illustrative; payments will be simulated without real credentials.
 
-## Current milestone: Phase 6
+## Initial application complete — Phases 1–7
+
+Start with the [30-minute classroom walkthrough](docs/classroom-demo.md). The
+[InventoryService assignment](docs/inventory-assignment.md) hands the next
+business capability to students; it has no implementation in this baseline.
 
 MenuService now implements validated CRUD with EF Core SQLite and seven sample
 products seeded on database creation. OrderService persists orders, retrieves menu
@@ -21,6 +25,16 @@ See the [MenuService walkthrough](docs/menu-service.md) and
 [Phase 4 payment demonstrations](docs/payment-service.md), plus the
 [Phase 5 web interface walkthrough](docs/web-interface.md) and
 [Phase 6 Docker walkthrough](docs/docker.md).
+
+Before a presentation, with the four apps running:
+
+```powershell
+./scripts/check-demo.ps1
+```
+
+This read-only preflight checks service availability, available menu data, browser
+configuration and CORS. Use [classroom.http](requests/classroom.http) for the
+guided server-pricing, snapshot, replay and failure demonstrations.
 
 | Project | Local URL | Responsibility | Owned database |
 | --- | --- | --- | --- |
@@ -120,7 +134,8 @@ dotnet sln SeekersCafe.sln add src/MenuService/MenuService.csproj src/OrderServi
 ```
 
 The empty `web` template avoids unrelated example endpoints and dependencies.
-WebApp will use ASP.NET Core only to serve static files; no UI framework is planned.
+WebApp uses ASP.NET Core to serve static files and public API configuration;
+it has no UI framework or frontend package installation.
 
 ## Incremental development
 
@@ -130,7 +145,25 @@ WebApp will use ASP.NET Core only to serve static files; no UI framework is plan
 4. **PaymentService — complete:** simulated success/decline, unique payment request key, integration, reconciliation and timeout behavior.
 5. **Web interface — complete:** browse, cart, checkout, confirmation, status lookup and classroom staff queue.
 6. **Docker — complete:** per-project Dockerfiles, Compose DNS/configuration, separate persistent database volumes and container integration checks.
-7. **Classroom demonstration:** walkthrough, failures and InventoryService assignment guidance.
+7. **Classroom demonstration — complete:** timed instructor walkthrough, failure quick reference, read-only preflight, named HTTP requests and InventoryService assignment handoff.
 
-Proceed only when the instructor requests the next phase.
-See [architecture and design decisions](docs/architecture.md).
+See [architecture and design decisions](docs/architecture.md) for the completed
+system and its intentional limits. InventoryService remains student work.
+
+## Verification reference
+
+These are the checks recorded during implementation; they are not automatically
+rerun by the read-only classroom preflight. See the phase walkthroughs for scope
+and prerequisites. All mutation suites use their own disposable data.
+
+| Check | Command | Recorded result |
+| --- | --- | --- |
+| MenuService CRUD and persistence | `./scripts/test-menu.ps1` | 44 HTTP checks |
+| OrderService integration and failures | `./scripts/test-orders.ps1` | 55 HTTP checks |
+| Payment simulation, replay and reconciliation | `./scripts/test-payments.ps1` | 73 HTTP checks |
+| Frontend cart and response classification | `node --test --test-isolation=none scripts/test-web-core.mjs` | 6 tests |
+| Real containers, volumes and HTTP integration | `./scripts/test-docker.ps1` | 26 HTTP checks plus container assertions |
+| Live classroom readiness (read-only) | `./scripts/check-demo.ps1` | Checks the currently running stack |
+
+The Docker application can run without a host .NET SDK. Local backend test scripts
+need the Debug .NET build; Node is needed only for the optional frontend logic tests.

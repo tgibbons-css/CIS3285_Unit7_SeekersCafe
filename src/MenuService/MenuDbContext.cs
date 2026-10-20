@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MenuService;
 
+/// <summary>
+/// Provides Entity Framework access to MenuService's SQLite database and configures menu item
+/// constraints and the conversion between decimal prices and stored integer cents.
+/// </summary>
 public sealed class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options)
 {
     public DbSet<MenuItem> MenuItems => Set<MenuItem>();

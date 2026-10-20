@@ -53,7 +53,7 @@ try {
     if ($menuResponse.Origin -ne $WebUrl -or $orderResponse.Origin -ne $WebUrl) {
         throw 'The APIs do not allow this frontend origin. Check Frontend:Origin and use localhost.'
     }
-    $menu = @($menuResponse.Text | ConvertFrom-Json)
+    $menu = $menuResponse.Text | ConvertFrom-Json
     # Windows PowerShell and PowerShell 7 enumerate empty JSON arrays differently.
     $menu = @($menu | Where-Object { $null -ne $_ })
     if ($menu.Count -eq 0) { throw 'No available menu items. Add or enable a sample item before the happy-path demonstration.' }

@@ -1,7 +1,9 @@
 namespace MenuService;
 
-// Input is separate from the entity so clients cannot assign database IDs.
-// Nullable values distinguish omitted properties from zero and false.
+/// <summary>
+/// Carries, validates, and applies client input when creating or updating a menu item without
+/// allowing clients to assign database IDs. Nullable values distinguish omitted fields from zero and false.
+/// </summary>
 public sealed record MenuItemRequest(
     string? Name, string? Description, string? Category, decimal? Price, bool? IsAvailable)
 {

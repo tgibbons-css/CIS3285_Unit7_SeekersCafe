@@ -4,15 +4,23 @@ using System.Text.Json.Serialization;
 
 namespace OrderService;
 
-// Consumer-owned HTTP contract: no reference to MenuService's assembly or DbContext.
+/// <summary>
+/// Represents the menu data OrderService receives over HTTP without sharing MenuService's models or database.
+/// </summary>
 public sealed record MenuProduct(
     [property: JsonRequired] int MenuItemId,
     [property: JsonRequired] string Name,
     [property: JsonRequired] decimal Price,
     [property: JsonRequired] bool IsAvailable);
 
+/// <summary>
+/// Indicates that menu validation could not finish because MenuService was unavailable or returned invalid data.
+/// </summary>
 public sealed class MenuUnavailableException(string message, Exception? inner = null) : Exception(message, inner);
 
+/// <summary>
+/// Retrieves and validates menu items over HTTP within a shared timeout so checkout can use current prices and availability.
+/// </summary>
 public sealed class MenuClient(HttpClient httpClient, ILogger<MenuClient> logger)
 {
     public async Task<Dictionary<int, MenuProduct?>> GetItemsAsync(IEnumerable<int> ids, CancellationToken ct)

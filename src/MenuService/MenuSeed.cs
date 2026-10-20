@@ -1,5 +1,8 @@
 namespace MenuService;
 
+/// <summary>
+/// Creates sample cafe menu items used to populate a newly created database for classroom demonstrations.
+/// </summary>
 public static class MenuSeed
 {
     // Illustrative products and prices, not a verified campus menu.

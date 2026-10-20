@@ -1,6 +1,9 @@
 namespace PaymentService;
 
-// No card numbers, student account numbers, or other credentials are accepted or stored.
+/// <summary>
+/// Carries and validates the order ID, request identifier, amount, and method for a simulated payment.
+/// No card numbers, student account numbers, or other credentials are accepted or stored.
+/// </summary>
 public sealed record PaymentRequest(int OrderId, string? RequestId, decimal? Amount, string? PaymentMethod)
 {
     public Dictionary<string, string[]> Validate()

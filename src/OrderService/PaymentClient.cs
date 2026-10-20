@@ -4,13 +4,23 @@ using System.Text.Json.Serialization;
 
 namespace OrderService;
 
+/// <summary>
+/// Represents the payment details returned by PaymentService for checkout and payment reconciliation.
+/// </summary>
 public sealed record PaymentRecord(
     [property: JsonRequired] int PaymentId, [property: JsonRequired] int OrderId,
     [property: JsonRequired] string RequestId, [property: JsonRequired] decimal Amount,
     [property: JsonRequired] string PaymentMethod, [property: JsonRequired] string Status);
 
+/// <summary>
+/// Indicates that a payment's outcome cannot be confirmed, so the order requires reconciliation.
+/// </summary>
 public sealed class PaymentUnknownException(string message, Exception? inner = null) : Exception(message, inner);
 
+/// <summary>
+/// Submits simulated payments with a stable request identifier and retrieves existing payment results over HTTP,
+/// validating that each response matches the order.
+/// </summary>
 public sealed class PaymentClient(HttpClient client)
 {
     // Stable across restarts and retries, using only persisted order fields (no schema change).

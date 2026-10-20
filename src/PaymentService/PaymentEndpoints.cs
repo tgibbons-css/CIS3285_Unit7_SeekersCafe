@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PaymentService;
 
+/// <summary>
+/// Maps HTTP endpoints for retrieving and creating simulated payments, replaying matching duplicate
+/// requests, rejecting conflicting inputs, and demonstrating declined payments or delayed responses.
+/// </summary>
 public static class PaymentEndpoints
 {
     public static void MapPaymentEndpoints(this WebApplication app, int responseDelay, bool declinePayments)

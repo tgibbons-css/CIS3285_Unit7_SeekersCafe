@@ -1,4 +1,8 @@
-# Architecture decisions — Phases 1–6
+# Architecture overview — completed classroom baseline
+
+The seven planned phases are complete. Use the [instructor walkthrough](classroom-demo.md)
+to demonstrate this design and the [InventoryService handout](inventory-assignment.md)
+for the student extension. InventoryService is proposed, not implemented.
 
 ## Boundaries and communication
 
@@ -14,9 +18,9 @@ flowchart LR
     Payment --> PaymentDB[(payments.db)]
 ```
 
-This is the target flow. MenuService CRUD and OrderService checkout/persistence
-are implemented, along with simulated PaymentService checkout and WebApp's plain
-HTML/CSS/JavaScript interface. OrderService saves Pending before calling payments,
+The system implements MenuService CRUD, OrderService checkout/persistence,
+simulated PaymentService checkout and WebApp's plain HTML/CSS/JavaScript interface.
+OrderService saves Pending before calling payments,
 then marks Paid on confirmed success. See [payment workflow](payment-service.md).
 The WebApp host makes four runnable processes, but there are three business
 microservices. Each project builds without project references to the others.
@@ -28,30 +32,31 @@ Each app now has its own multi-stage Dockerfile. Compose runs four non-root
 processes on one project network; the business services exclusively mount their
 own named SQLite volumes. Docker environment settings replace local paths and
 service URLs. See [container networking and persistence](docker.md).
-Each service will have its own EF Core DbContext and SQLite file. Relationships
+Each business service owns its own EF Core DbContext and SQLite file. Relationships
 across services are identifiers carried in JSON, never cross-database foreign keys
 or database queries. Small consumer-side DTOs make the HTTP contract explicit
 without introducing a shared business-model library.
 
-Use `IHttpClientFactory` clients in OrderService, with base URLs read from
-configuration and finite timeouts. Local URLs will be localhost ports; Compose
-will override them with service DNS names and container ports. Browser URLs must
-remain host-accessible: Docker service names are not resolvable by the browser.
-MenuService and OrderService allow only `http://localhost:5100` in CORS.
+OrderService uses `IHttpClientFactory` clients with configured base URLs and finite
+timeouts. Local URLs use localhost ports; Compose overrides them with service DNS
+names and container ports. Browser URLs remain host-accessible: Docker service
+names are not resolvable by the browser.
+MenuService and OrderService allow one configured frontend origin in CORS,
+defaulting to `http://localhost:5100`.
 CORS is unnecessary for server-to-server calls and is not
 authentication. No gateway or proxy is needed for this lesson.
 
-## Recommended simplifications and corrections
+## Deliberate simplifications
 
-- Use .NET 10, the newest installed stable LTS SDK, with EF Core 10 SQLite.
-  Add packages only in the phase that uses them. The textbook's .NET 7 examples
+- The projects target .NET 10, with SDK selection pinned in `global.json` and
+  EF Core 10 SQLite in each business service. The textbook's .NET 7 examples
   illustrate architecture; they do not set this project's target framework.
-- Use REST Client `.http` files first. OpenAPI generation can be added alongside
-  the business APIs if useful; an interactive Swagger UI is optional.
+- API exploration uses REST Client `.http` files. No Swagger UI dependency is
+  required; the HTTP request files make methods, payloads and status codes visible.
 - Use local HTTP for this simulated classroom app to avoid certificate setup.
   Do not deploy its unauthenticated mutation APIs as a public ordering system.
-- Start with EF Core `EnsureCreatedAsync` and seed only when the database schema
-  is first created in Phase 2. An existing empty menu stays empty after a restart.
+- Each business service uses EF Core `EnsureCreatedAsync`. MenuService seeds only
+  when its schema is first created. An existing empty menu stays empty after a restart.
   This keeps schema setup visible. It does not evolve existing schemas:
   recreate disposable demo databases after model changes, or introduce migrations
   deliberately before retaining data across schema changes. Do not mix both approaches.
@@ -80,8 +85,8 @@ authentication. No gateway or proxy is needed for this lesson.
 4. Call PaymentService with the order ID, server-calculated amount, simulated
    method (`Credit Card` or `Dining Dollars`) and stable payment key.
 5. Mark Paid only after a confirmed success. On a confirmed decline retain Pending
-   with an explicit declined outcome. A configurable demo decline mode will require
-   no real card numbers or account information.
+   with an explicit declined outcome. Configurable simulation modes need no real
+   card numbers or account information.
 6. If the request times out, payment may have committed even though its response
    was lost. Keep Pending and report the outcome as unknown, including the order ID.
    Reconcile through OrderService's payment reconciliation endpoint (which reads
@@ -96,12 +101,11 @@ same key. Automatic reconciliation, order-submission idempotency, durable messag
 and distributed transactions are outside the initial scope. Menu availability may
 also change between validation and payment; no stock reservation exists yet.
 
-Use structured ASP.NET Core/HttpClient logging, adding order IDs and payment keys
-to workflow messages as implemented. Log incoming method/path/status/duration and
-dependency failures without logging request bodies or payment credentials.
-Timeouts and cancellation should produce clear responses rather than raw exceptions.
-In Phase 6, mount one separate SQLite volume per owning service. Do not share
-database directories between containers. SQLite is appropriate for one demo
+Business services emit structured JSON console logs with ASP.NET Core/HttpClient
+activity, order IDs, payment keys and important errors. Incoming request logs show
+method/path/status/duration without bodies or payment credentials. Dependency
+timeouts return explicit failure/uncertainty responses. Compose mounts one separate
+SQLite volume per owning service; database directories are not shared. SQLite is appropriate for one demo
 instance per service, not unrestricted horizontal write scaling.
 
 ## InventoryService extension point
@@ -113,7 +117,8 @@ whether an item can be ordered; students should decide how that relates to inven
 as the authoritative source of stock. A separate check followed by decrement can
 oversell under concurrent requests, so discuss an atomic reservation/decrement API
 and release behavior after payment failure. No InventoryService code, project or
-database is created in this milestone.
+database is included in the baseline. The [student assignment](inventory-assignment.md)
+separates a core stock-validation milestone from an optional reservation extension.
 
 ## References
 

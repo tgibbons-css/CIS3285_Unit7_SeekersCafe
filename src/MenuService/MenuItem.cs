@@ -1,5 +1,9 @@
 namespace MenuService;
 
+/// <summary>
+/// Represents a cafe menu item stored by MenuService, including its name, description,
+/// category, current price, and availability for ordering.
+/// </summary>
 public sealed class MenuItem
 {
     public int MenuItemId { get; set; }

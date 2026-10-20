@@ -1,5 +1,6 @@
 :root{--paper:#faf8f1;--ink:#293c30;--muted:#657167;--line:#dedfd3;--accent:#c65d38;--pale:#f0eee3;--white:#fffef9;--radius:18px;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);font-size:16px;line-height:1.55}
 
+/* Shared sizing, typography, and keyboard-focus rules apply across all page sections. */
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:22px}
 body{margin:0}
@@ -51,6 +52,7 @@ nav a:hover{text-decoration:underline}
 .notice>span{font-size:1.7rem}
 .notice p{font-size:.77rem;margin:0;color:#4d5b43}
 .notice strong{font-weight:700;margin-right:7px}
+/* Desktop layout places the menu beside the cart; smaller screens override this below. */
 .ordering-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:38px;align-items:start}
 .section-heading{display:flex;justify-content:space-between;gap:12px;align-items:center}
 .section-heading .eyebrow{margin-bottom:8px}
@@ -89,6 +91,7 @@ legend{margin-bottom:7px}
 .primary:hover:not(:disabled){background:#405b42}
 #checkout-button{display:flex;width:100%;justify-content:space-between;gap:5px}
 .feedback{padding:13px;border-radius:8px;border:1px solid #c8d2b9;background:#e9efdf;font-size:.85rem;overflow-wrap:anywhere;margin-top:16px;margin-bottom:0;white-space:pre-line}
+/* JavaScript sets data-kind to select the feedback appearance without changing CSS classes. */
 .feedback[data-kind=error]{border-color:#d9ad99;background:#fae9df;color:#713c2b}
 .feedback[data-kind=warning]{background:#fcf1d7;border-color:#d6bb76;color:#654f20}
 .tracking-section{margin-top:65px;border-top:1px solid var(--line);padding-top:38px;display:grid;grid-template-columns:1fr 1fr;gap:18px 35px}
@@ -117,6 +120,7 @@ footer{padding-top:30px;padding-bottom:35px;border-top:1px solid var(--line);dis
 footer p,footer a{font-size:.73rem;color:var(--muted);margin:0}
 .footer-brand{font-size:1.8rem}
 
+/* Media queries adapt spacing and layout to the browser viewport width. */
 @media(max-width:980px){.site-header,main,footer{padding-left:28px;padding-right:28px}
 .ordering-layout{grid-template-columns:minmax(0,1fr) 305px;gap:22px}
 .menu-card{padding:15px}
@@ -127,6 +131,7 @@ nav{gap:16px}
 .hero h1{font-size:3.7rem}
 }
 
+/* On narrow screens, stack the menu and cart and allow navigation and forms to wrap. */
 @media(max-width:740px){.site-header,main,footer{padding-left:20px;padding-right:20px}
 .site-header{flex-wrap:wrap;padding-top:20px;padding-bottom:18px;gap:18px}
 .brand{font-size:1.6rem}
@@ -152,6 +157,7 @@ footer{flex-wrap:wrap;gap:20px}
 .hero-copy br{display:none}
 }
 
+/* Respect the user's accessibility preference by disabling animated scrolling. */
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}
 }
 

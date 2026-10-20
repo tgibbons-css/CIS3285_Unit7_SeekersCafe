@@ -1,7 +1,13 @@
 namespace OrderService;
 
+/// <summary>
+/// Defines the stages an order can occupy during payment, preparation, fulfillment, or cancellation.
+/// </summary>
 public enum OrderStatus { Pending, Paid, Preparing, Ready, Completed, Cancelled }
 
+/// <summary>
+/// Stores a customer's order, including its creation time, workflow status, server-calculated total, and line items.
+/// </summary>
 public sealed class Order
 {
     public int OrderId { get; set; }
@@ -12,6 +18,9 @@ public sealed class Order
     public List<OrderItem> OrderItems { get; set; } = [];
 }
 
+/// <summary>
+/// Stores an ordered menu item's quantity and a snapshot of its name and price to preserve the purchase history.
+/// </summary>
 public sealed class OrderItem
 {
     public int OrderItemId { get; set; }

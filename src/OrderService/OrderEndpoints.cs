@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace OrderService;
 
+/// <summary>
+/// Maps the HTTP endpoints for retrieving orders, validating checkout, reconciling payments,
+/// and enforcing allowed order status transitions.
+/// </summary>
 public static class OrderEndpoints
 {
     public static void MapOrderEndpoints(this WebApplication app)
@@ -18,6 +22,9 @@ public static class OrderEndpoints
             return order is null ? Results.NotFound() : Results.Ok(order);
         });
 
+        // POST /api/orders: Validates checkout against the current menu, saves a Pending order
+        // with price snapshots and a server-calculated total, then requests a simulated payment.
+        // Confirmed success marks the order Paid; an uncertain outcome requires reconciliation.
         orders.MapPost("", async (CreateOrderRequest request, OrderDbContext db, MenuClient menu, PaymentClient payments, CancellationToken ct) =>
         {
             var errors = request.Validate();
@@ -80,6 +87,8 @@ public static class OrderEndpoints
             return Results.Created($"/api/orders/{order.OrderId}", new { order, payment });
         });
 
+        // POST /api/orders/{id}/payment/reconcile: Retrieves the order's existing payment result
+        // and marks a Pending order Paid when success is confirmed, without initiating another payment.
         orders.MapPost("/{id:int}/payment/reconcile", async (int id, OrderDbContext db, PaymentClient payments, CancellationToken ct) =>
         {
             var order = await db.Orders.AsNoTracking().Include(x => x.OrderItems).SingleOrDefaultAsync(x => x.OrderId == id, ct);

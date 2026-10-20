@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PaymentService;
 
+/// <summary>
+/// Stores a simulated payment's order reference, request identifier, amount, method,
+/// outcome, and transaction time for later retrieval and reconciliation.
+/// </summary>
 public sealed class Payment
 {
     public int PaymentId { get; set; }
@@ -13,6 +17,10 @@ public sealed class Payment
     public DateTime TransactionDate { get; set; }
 }
 
+/// <summary>
+/// Provides Entity Framework access to PaymentService's SQLite database, enforcing unique payments
+/// per order and request identifier and converting decimal amounts to stored integer cents.
+/// </summary>
 public sealed class PaymentDbContext(DbContextOptions<PaymentDbContext> options) : DbContext(options)
 {
     public DbSet<Payment> Payments => Set<Payment>();

@@ -1,6 +1,9 @@
 namespace OrderService;
 
-// Client prices, totals, timestamps and statuses are intentionally absent.
+/// <summary>
+/// Carries and validates the customer details, item selections, and payment method supplied at checkout.
+/// Prices, totals, timestamps, and initial status are determined by the server.
+/// </summary>
 public sealed record CreateOrderRequest(string? CustomerName, List<OrderItemRequest?>? Items, string? PaymentMethod)
 {
     public Dictionary<string, string[]> Validate()
@@ -28,5 +31,12 @@ public sealed record CreateOrderRequest(string? CustomerName, List<OrderItemRequ
     }
 }
 
+/// <summary>
+/// Identifies a menu item and the quantity the customer wants to order.
+/// </summary>
 public sealed record OrderItemRequest(int MenuItemId, int Quantity);
+
+/// <summary>
+/// Carries a requested order status change for validation against the allowed workflow transitions.
+/// </summary>
 public sealed record UpdateStatusRequest(string? Status);

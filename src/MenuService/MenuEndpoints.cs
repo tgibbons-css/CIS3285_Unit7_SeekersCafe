@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MenuService;
 
+/// <summary>
+/// Maps the HTTP endpoints for listing, retrieving, creating, updating, and deleting menu items,
+/// including request validation and availability filtering.
+/// </summary>
 public static class MenuEndpoints
 {
     public static void MapMenuEndpoints(this WebApplication app)
