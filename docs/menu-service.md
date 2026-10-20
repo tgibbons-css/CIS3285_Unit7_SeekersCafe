@@ -1,4 +1,4 @@
-# Phase 2: MenuService
+# MenuService
 
 MenuService can now run entirely on its own. It creates `src/MenuService/menu.db`
 when launched with `dotnet run --project src/MenuService --launch-profile http`.

@@ -1,4 +1,4 @@
-# Phase 6: Docker and Compose
+# Docker and Compose
 
 Each app has an independent Linux image. Compose connects them over HTTP and mounts
 one persistent SQLite volume per business service. WebApp owns no database.

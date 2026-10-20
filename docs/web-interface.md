@@ -1,4 +1,4 @@
-# Phase 5: the café interface
+# The café web interface
 
 WebApp now serves plain HTML, CSS and JavaScript from `wwwroot`. There is no UI
 framework, bundler, frontend package installation or shared business-model library.

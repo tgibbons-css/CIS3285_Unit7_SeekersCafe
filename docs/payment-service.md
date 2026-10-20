@@ -1,4 +1,4 @@
-# Phase 4: simulated payments
+# Simulated payments
 
 PaymentService owns `payments.db`. It simulates Credit Card and Dining Dollars
 without contacting a provider or storing credentials. Start it with:

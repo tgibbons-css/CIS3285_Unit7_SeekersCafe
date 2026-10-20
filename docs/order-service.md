@@ -1,4 +1,4 @@
-# OrderService — through Phase 4
+# OrderService
 
 OrderService owns `orders.db`, retrieves products from MenuService through HTTP,
 and calls PaymentService after saving a Pending order. It does not reference

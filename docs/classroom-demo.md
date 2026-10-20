@@ -1,4 +1,4 @@
-# Phase 7: classroom demonstration
+# Classroom Demonstration
 
 Instructor walkthrough for CIS 3285: Advanced Software Design, College of
 St. Scholastica. This is an educational simulation with illustrative products and

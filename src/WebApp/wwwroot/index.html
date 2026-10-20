@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Seekers Café classroom ordering demonstration. Browse sample drinks and bites, place a simulated order, and follow its progress.">
   <title>Seekers Café · A good cup, a little pause</title>
+  <!-- WebApp serves these assets from wwwroot. The module script imports helpers from core.mjs. -->
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.mjs"></script>
 </head>
@@ -25,6 +26,7 @@
       <section id="menu" aria-labelledby="menu-title">
         <div class="section-heading"><div><p class="eyebrow">SOMETHING FOR YOUR BREAK</p><h2 id="menu-title">The menu</h2></div><button id="reload-menu" class="subtle" type="button">Refresh menu</button></div>
         <label class="search-label" for="search">Find a drink or bite</label><input id="search" type="search" placeholder="Search the menu…" autocomplete="off">
+        <!-- app.mjs fills these containers from MenuService data; IDs connect markup to JavaScript. -->
         <div id="categories" class="categories" role="group" aria-label="Filter by category"></div>
         <p id="menu-message" class="muted" role="status">Loading the menu…</p>
         <div id="menu-items" class="menu-grid" aria-busy="true"></div>
@@ -33,6 +35,7 @@
         <div class="cart-heading"><h2 id="cart-title">Your coffee break</h2><span id="cart-count" class="count">0</span></div>
         <p class="muted small">A few good things, picked by you.</p><div id="cart-items"></div>
         <div class="total-row"><span>Estimated total</span><strong id="cart-total">$0.00</strong></div><p class="small muted">Final prices are confirmed when you order.</p>
+        <!-- JavaScript intercepts submission to send JSON to OrderService without navigating away. -->
         <form id="checkout-form">
           <label for="customer-name">Your name</label><input id="customer-name" name="customerName" maxlength="100" required placeholder="What should we call you?" autocomplete="off">
           <fieldset><legend>Simulated payment</legend><label class="radio-option"><input type="radio" name="paymentMethod" value="Credit Card" checked> Credit Card</label><label class="radio-option"><input type="radio" name="paymentMethod" value="Dining Dollars"> Dining Dollars</label></fieldset>
@@ -43,6 +46,7 @@
         <button id="clear-uncertainty" class="subtle" type="button" hidden>I checked my orders; start a new cart</button>
       </aside>
     </div>
+    <!-- Order tracking displays saved server data separately from the browser's cart estimate. -->
     <section id="track" class="tracking-section" aria-labelledby="track-title">
       <div><p class="eyebrow">FROM OUR COUNTER TO YOU</p><h2 id="track-title">How’s your order?</h2><p class="muted">Enter your order number to see its latest progress.</p></div>
       <form id="track-form" class="inline-form"><label for="order-id">Order number</label><div><input id="order-id" type="number" min="1" max="2147483647" step="1" required placeholder="e.g. 12"><button class="primary" type="submit">Find order</button></div></form>
