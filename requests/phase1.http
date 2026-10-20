@@ -1,0 +1,14 @@
+### Run each project in its own terminal before sending these requests.
+### Each should return HTTP 200 and the service name.
+### MenuService now reports phase 2; the remaining shells report phase 1.
+
+GET http://localhost:5101/
+
+###
+GET http://localhost:5102/
+
+###
+GET http://localhost:5103/
+
+###
+GET http://localhost:5100/

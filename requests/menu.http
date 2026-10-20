@@ -1,0 +1,59 @@
+@baseUrl = http://localhost:5101
+
+### Available sample menu (200)
+GET {{baseUrl}}/api/menu
+
+### Include unavailable items (200)
+GET {{baseUrl}}/api/menu?includeUnavailable=true
+
+### Get one item, including its availability (200 or 404)
+GET {{baseUrl}}/api/menu/1
+
+### Create a sample item (201 with Location header)
+# @name createItem
+POST {{baseUrl}}/api/menu
+Content-Type: application/json
+
+{
+  "name": "Demo Tea",
+  "description": "A sample item for API testing.",
+  "category": "Other Drinks",
+  "price": 2.95,
+  "isAvailable": true
+}
+
+### Update the item created above (200); it disappears from the default list
+PUT {{baseUrl}}/api/menu/{{createItem.response.body.$.menuItemId}}
+Content-Type: application/json
+
+{
+  "name": "Demo Tea",
+  "description": "Temporarily unavailable.",
+  "category": "Other Drinks",
+  "price": 3.10,
+  "isAvailable": false
+}
+
+### Delete the created item (204; repeating this request returns 404)
+DELETE {{baseUrl}}/api/menu/{{createItem.response.body.$.menuItemId}}
+
+### Invalid input (400 with field errors; no database change)
+POST {{baseUrl}}/api/menu
+Content-Type: application/json
+
+{
+  "name": " ",
+  "description": "",
+  "category": "Coffee",
+  "price": 1.005,
+  "isAvailable": true
+}
+
+### Missing required input (400)
+POST {{baseUrl}}/api/menu
+Content-Type: application/json
+
+{}
+
+### Missing item (404)
+GET {{baseUrl}}/api/menu/2147483647

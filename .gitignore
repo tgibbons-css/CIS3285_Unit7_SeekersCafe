@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+.local/
+.vs/
+*.user
+*.suo
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.db-journal
